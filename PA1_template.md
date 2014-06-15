@@ -4,7 +4,8 @@ This is the deliverable for Assignment 1 of the Reproducible Research class.
 
 A global setting is made to show the code in the output deliverable.
 
-```{r setoptions, echo=TRUE}
+
+```r
 opts_chunk$set(echo=TRUE)
 
 library(plyr)
@@ -14,7 +15,8 @@ library(plyr)
 
 First, load the data with the columns in the appropriate formats
 
-```{r}
+
+```r
 data <- read.csv("activity.csv", 
                  colClasses = c("numeric", "Date", "numeric"))
 ```
@@ -26,7 +28,8 @@ For this section, missing values in the dataset are ignored.
 
 Below is a histogram of the total number of steps taken each day.
 
-```{r}
+
+```r
 e <- aggregate(data$steps, by=list(Date=data$date), FUN=sum)
 hist(e$x, 
      breaks=15, 
@@ -35,18 +38,22 @@ hist(e$x,
      ylab="Frequency")
 ```
 
-```{r}
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2.png) 
+
+
+```r
 medianS <- median(e$x, na.rm=TRUE)
 meanS <- mean(e$x, na.rm=TRUE)
 ```
 
-The **mean** number of steps taken per day = `r meanS`  
-The **median** number of steps taken per day = `r medianS`
+The **mean** number of steps taken per day = 1.0766 &times; 10<sup>4</sup>  
+The **median** number of steps taken per day = 1.0765 &times; 10<sup>4</sup>
 
 
 ## What is the average daily activity pattern?
 
-```{r}
+
+```r
 g <- aggregate(data$steps, 
                by=list(interval=data$interval), 
                FUN=mean, 
@@ -59,11 +66,14 @@ plot(g$interval,
      ylab="Average no. of steps in 5 minute slot")
 ```
 
-```{r}
+![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4.png) 
+
+
+```r
 maxSlot <- subset(g, g$x==max(g$x, na.rm=TRUE))$interval
 ```
 
-The 5-minute slot with the highest average number of steps is `r maxSlot` (24-hour clock).
+The 5-minute slot with the highest average number of steps is 835 (24-hour clock).
 
 
 ## Imputing missing values
@@ -71,7 +81,8 @@ The 5-minute slot with the highest average number of steps is `r maxSlot` (24-ho
 The NAs in the steps column as seen in the original dataset will be replaced with the 
 average for the intervals concerned.
 
-```{r}
+
+```r
 comb <- merge(data, g, by="interval")
 comb$steps <- ifelse(is.na(comb$steps), comb$x, comb$steps)
 ```
@@ -82,7 +93,8 @@ full days. Therefore, replacing these NAs with the average for the intervals
 should have the effect of simply increasing the frequency of the most common 
 block of the histogram by 8.
 
-```{r}
+
+```r
 combH <- aggregate(comb$steps, by=list(Date=comb$date), FUN=sum)
 hist(combH$x, 
      breaks=15,
@@ -91,21 +103,25 @@ hist(combH$x,
      ylab="Frequency")
 ```
 
+![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-7.png) 
+
 Similarly, recalculating the mean, should yield the same result as before.
 And the median should be seen to get closer to the mean.
 
-```{r}
+
+```r
 medianN <- median(combH$x, na.rm=TRUE)
 meanN <- mean(combH$x, na.rm=TRUE)
 ```
 
-The **mean** number of steps taken per day = `r meanN`  
-The **median** number of steps taken per day = `r medianN`
+The **mean** number of steps taken per day = 1.0766 &times; 10<sup>4</sup>  
+The **median** number of steps taken per day = 1.0766 &times; 10<sup>4</sup>
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-```{r}
+
+```r
 library(ggplot2)
 
 dayType <- data.frame(day=c("Monday","Tuesday","Wednesday","Thursday",
@@ -127,6 +143,8 @@ a <- a + facet_wrap(~type, ncol=1)
 a <- a + xlab("Interval") + ylab("Number of steps") + ggtitle("Activity by weekday and weekend")
 a
 ```
+
+![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9.png) 
 
 There are clear differences between weekday and weekend activity for this set of data.  
 For example, at the weekend, there is reduced activity in the period around 06:00 and a lower morning peak - as compared to weekday activity.
